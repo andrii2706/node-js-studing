@@ -33,7 +33,7 @@ const fs = require('fs');
 
 const server = http.createServer((req, res) => {
     // console.log(req.url, req.method, req.headers)
-    // process.exit()
+    process.exit()
     const url = req.url;
     const method = req.method
     if(url === '/'){
@@ -45,7 +45,16 @@ const server = http.createServer((req, res) => {
     return res.end();
     }
      if (url === '/message' && method === 'POST'){
-        fs.writeFileSync('message.txt', 'DUMMY');
+        const body = [];
+        req.on("data", (chunk) => {
+            body.push(chunk)
+            console.log(chunk); 
+        })
+        req.on('end', () => {
+            const parsedBody = Buffer.concat(body).toString();
+            const message = parsedBody.split("=")[1];
+             fs.writeFileSync('message.txt', message);
+        })
         res.writeHead(302, {
             'location': '/'
         });
